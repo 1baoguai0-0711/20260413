@@ -1,0 +1,35 @@
+html, body {
+  margin: 0;
+  padding: 0;
+}
+
+canvas {
+  display: block;
+}
+
+/* 作品顯示視窗樣式 */
+#content-frame {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%); /* 核心置中語法 */
+  width: 85%;  /* 放大寬度 */
+  height: 85%; /* 放大高度 */
+  border: 5px solid rgba(255, 255, 255, 0.4);
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.95); /* 稍微提高不透明度，讓作品更清楚 */
+  box-shadow: 0 0 50px rgba(0, 0, 0, 0.5); /* 增加陰影更有懸浮感 */
+  z-index: 1000;
+  display: none;
+}
+
+.iframe-close {
+  position: absolute;
+  top: -35px;
+  right: 10px;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  font-family: sans-serif;
+  font-size: 18px;
+}
