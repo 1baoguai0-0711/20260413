@@ -5,6 +5,8 @@
 let seaweeds = [];
 let bubbles = [];
 let fishes = [];
+let bgBubbles = [];
+let particles = [];
 let assignments = [
   { week: "第一週", title: "幾何練習", url: "./week1" },
   { week: "第二週", title: "色彩互動", url: "./week2" },
@@ -32,6 +34,11 @@ function setup() {
   for (let i = 0; i < 5; i++) {
     fishes.push(new VertexFish());
   }
+
+  // 初始化背景水泡
+  for (let i = 0; i < 15; i++) {
+    bgBubbles.push(new BgBubble());
+  }
 }
 
 function draw() {
@@ -54,6 +61,28 @@ function draw() {
   for (let b of bubbles) {
     b.update();
     b.display();
+  }
+
+  // 更新與繪製背景裝飾水泡
+  for (let i = bgBubbles.length - 1; i >= 0; i--) {
+    bgBubbles[i].update();
+    bgBubbles[i].display();
+    if (bgBubbles[i].popped) {
+      // 產生破掉的特效粒子
+      for (let j = 0; j < 8; j++) {
+        particles.push(new Particle(bgBubbles[i].pos.x, bgBubbles[i].pos.y));
+      }
+      bgBubbles[i].reset(); // 重置水泡到地底部
+    }
+  }
+
+  // 更新與繪製粒子特效
+  for (let i = particles.length - 1; i >= 0; i--) {
+    particles[i].update();
+    particles[i].display();
+    if (particles[i].isDead()) {
+      particles.splice(i, 1);
+    }
   }
 }
 
@@ -176,6 +205,72 @@ class VertexFish {
     fill(0);
     ellipse(26, -2, 2);
     pop();
+  }
+}
+
+// -----------------------------------------------------------
+// Class: 背景裝飾水泡 (由下而上，隨機高度破裂)
+// -----------------------------------------------------------
+class BgBubble {
+  constructor() {
+    this.reset();
+  }
+
+  reset() {
+    this.pos = createVector(random(width), height + random(20, 100));
+    this.vel = createVector(random(-0.5, 0.5), random(-1, -2.5));
+    this.size = random(5, 15);
+    this.popY = random(height * 0.1, height * 0.6); // 隨機破裂高度
+    this.popped = false;
+  }
+
+  update() {
+    this.pos.add(this.vel);
+    this.pos.x += sin(frameCount * 0.02 + this.size) * 0.3; // 輕微左右晃動
+    if (this.pos.y < this.popY) {
+      this.popped = true;
+    }
+  }
+
+  display() {
+    push();
+    noFill();
+    stroke(255, 120);
+    strokeWeight(1);
+    circle(this.pos.x, this.pos.y, this.size);
+    // 小高光
+    noStroke();
+    fill(255, 150);
+    circle(this.pos.x - this.size * 0.2, this.pos.y - this.size * 0.2, this.size * 0.2);
+    pop();
+  }
+}
+
+// -----------------------------------------------------------
+// Class: 破裂粒子特效
+// -----------------------------------------------------------
+class Particle {
+  constructor(x, y) {
+    this.pos = createVector(x, y);
+    this.vel = p5.Vector.random2D().mult(random(1, 3));
+    this.lifespan = 255;
+  }
+
+  update() {
+    this.pos.add(this.vel);
+    this.lifespan -= 12; // 消失速度
+  }
+
+  display() {
+    push();
+    stroke(255, this.lifespan);
+    strokeWeight(2);
+    point(this.pos.x, this.pos.y);
+    pop();
+  }
+
+  isDead() {
+    return this.lifespan < 0;
   }
 }
 
